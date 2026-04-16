@@ -49,22 +49,21 @@ and platform-agnostic business logic.
 ```text
 my-cli/
 ├── src/
-│   └── my_cli/
+│   ├── __init__.py
+│   ├── __main__.py              # Entry: `python -m my_cli`
+│   ├── cli.py                   # Typer app definition + global opts
+│   ├── commands/
+│   │   ├── __init__.py
+│   │   ├── init.py
+│   │   ├── deploy.py
+│   │   └── status.py
+│   ├── services/                # Business logic, API clients
+│   │   ├── __init__.py
+│   │   ├── auth.py
+│   │   └── api.py
+│   └── utils/                   # Shared helpers, config loading
 │       ├── __init__.py
-│       ├── __main__.py          # Entry: `python -m my_cli`
-│       ├── cli.py               # Typer app definition + global opts
-│       ├── commands/
-│       │   ├── __init__.py
-│       │   ├── init.py
-│       │   ├── deploy.py
-│       │   └── status.py
-│       ├── services/            # Business logic, API clients
-│       │   ├── __init__.py
-│       │   ├── auth.py
-│       │   └── api.py
-│       └── utils/               # Shared helpers, config loading
-│           ├── __init__.py
-│           └── config.py
+│       └── config.py
 ├── tests/
 │   ├── conftest.py
 │   ├── test_deploy.py
@@ -80,22 +79,22 @@ my-cli/
 my-agent-system/
 ├── packages/
 │   ├── agent-core/              # Platform-agnostic agent logic
-│   │   ├── src/agent_core/
+│   │   ├── src/
+│   │   │   ├── __init__.py
 │   │   │   ├── agent.py         # pydantic-ai Agent definition
 │   │   │   ├── tools.py         # Tool functions
-│   │   │   ├── models.py        # Pydantic state/result models
-│   │   │   └── __init__.py
+│   │   │   └── models.py        # Pydantic state/result models
 │   │   ├── tests/
 │   │   └── pyproject.toml
 │   │
 │   ├── mcp-server/              # MCP tool server
-│   │   ├── src/mcp_server/
+│   │   ├── src/
 │   │   │   ├── tools/           # Tool handler implementations
 │   │   │   └── server.py        # FastMCP server bootstrap
 │   │   └── pyproject.toml
 │   │
 │   ├── client-cli/              # CLI client
-│   │   ├── src/client_cli/
+│   │   ├── src/
 │   │   │   ├── cli.py           # Typer app & global config
 │   │   │   ├── commands/        # Command handlers (chat, login, status)
 │   │   │   ├── services/        # External integrations
@@ -103,7 +102,7 @@ my-agent-system/
 │   │   └── pyproject.toml
 │   │
 │   └── client-web/              # Web client (optional)
-│       ├── src/client_web/
+│       ├── src/
 │       └── pyproject.toml
 │
 ├── pyproject.toml               # Root workspace
@@ -116,7 +115,7 @@ my-agent-system/
 ## Entry Point
 
 ```python
-# src/my_cli/cli.py
+# src/cli.py
 import typer
 from rich.console import Console
 
@@ -142,7 +141,7 @@ def main(verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose ou
 ```
 
 ```python
-# src/my_cli/__main__.py
+# src/__main__.py
 from my_cli.cli import app
 
 app()
@@ -157,7 +156,7 @@ app()
 Standard command with options, confirmation prompt, spinner, and shell execution.
 
 ```python
-# src/my_cli/commands/deploy.py
+# src/commands/deploy.py
 import subprocess
 import typer
 from rich.console import Console
@@ -197,7 +196,7 @@ def deploy(
 Business logic separated from command handlers.
 
 ```python
-# src/my_cli/services/aws.py
+# src/services/aws.py
 import json
 import subprocess
 
@@ -219,7 +218,7 @@ class AwsService:
 ```
 
 ```python
-# src/my_cli/commands/login.py
+# src/commands/login.py
 import typer
 from rich.console import Console
 
@@ -247,7 +246,7 @@ def login(
 ### 3. Interactive Wizard (Multi-Step Prompts)
 
 ```python
-# src/my_cli/commands/init.py
+# src/commands/init.py
 import subprocess
 from pathlib import Path
 
@@ -286,8 +285,8 @@ def init():
 
     with console.status("Scaffolding project..."):
         base = Path(name)
-        (base / "src" / name.replace("-", "_") / "commands").mkdir(parents=True)
-        (base / "src" / name.replace("-", "_") / "services").mkdir(parents=True)
+        (base / "src" / "commands").mkdir(parents=True)
+        (base / "src" / "services").mkdir(parents=True)
         (base / "tests").mkdir(parents=True)
 
         if use_git:
@@ -301,7 +300,7 @@ def init():
 Persistent conversation with real-time Rich.Live streaming — the official pydantic-ai pattern.
 
 ```python
-# src/my_cli/commands/chat.py
+# src/commands/chat.py
 import asyncio
 
 import typer
@@ -379,7 +378,7 @@ def chat(
 ### 5. MCP Server
 
 ```python
-# packages/mcp-server/src/mcp_server/server.py
+# packages/mcp-server/src/server.py
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("my-tools")
@@ -407,7 +406,7 @@ Persistent local storage for auth tokens, agent history, and config.
 Same model pattern as production DB — Pydantic validation everywhere, no raw SQL strings.
 
 ```python
-# src/my_cli/services/store.py
+# src/services/store.py
 from datetime import datetime
 from pathlib import Path
 
@@ -466,7 +465,7 @@ class Store:
 Type-safe config from env vars, `.env` files, and defaults — no manual `os.getenv()`.
 
 ```python
-# src/my_cli/utils/config.py
+# src/utils/config.py
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -515,10 +514,10 @@ uv build && uv publish
 uv run shiv -c mytool -o dist/mytool.pyz .
 
 # Single binary (PyInstaller)
-uv run pyinstaller --onefile --name mytool src/my_cli/__main__.py
+uv run pyinstaller --onefile --name mytool src/__main__.py
 
 # Single binary (Nuitka — better performance)
-uv run nuitka --standalone --onefile --output-filename=mytool src/my_cli/__main__.py
+uv run nuitka --standalone --onefile --output-filename=mytool src/__main__.py
 ```
 
 ---
@@ -551,5 +550,5 @@ uv run nuitka --standalone --onefile --output-filename=mytool src/my_cli/__main_
 - Lint and format with `ruff` — single tool replaces flake8, isort, black
 - Type check with `pyright` in strict mode
 - Use `uv` for all dependency management — `uv add`, `uv sync`, `uv run`, `uv lock`
-- Use `src/` layout (PEP 517) to prevent accidental imports from project root
+- Use flat `src/` layout — code lives directly in `src/`, no nested package subfolder
 - Target Python 3.13+ minimum; use 3.14t (free-threaded) for CPU-bound parallel workloads

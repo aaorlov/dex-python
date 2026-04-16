@@ -7,7 +7,7 @@ Complex agent with state machine, tool calls, and human-in-the-loop interrupts.
 ### Agent Core (platform-agnostic)
 
 ```python
-# packages/agent-core/src/agent_core/graph.py
+# packages/agent-core/src/graph.py
 from typing import Annotated
 
 from langchain_anthropic import ChatAnthropic
@@ -53,7 +53,7 @@ def create_agent():
 ### CLI Command wrapping LangGraph agent
 
 ```python
-# packages/client-cli/src/client_cli/commands/agent_chat.py
+# packages/client-cli/src/commands/agent_chat.py
 import asyncio
 
 import typer
@@ -100,7 +100,7 @@ Rich, dashboard-style terminal interface with real-time streaming.
 Use `textual` when you need a stateful, component-driven terminal UI.
 
 ```python
-# src/my_cli/ui/chat_app.py
+# src/ui/chat_app.py
 from textual import on, work
 from textual.app import App, ComposeResult
 from textual.containers import VerticalScroll
@@ -176,7 +176,7 @@ def start_chat(model: str) -> None:
 ### Registering Textual TUI from a Typer command
 
 ```python
-# src/my_cli/commands/tui_chat.py
+# src/commands/tui_chat.py
 import typer
 
 from my_cli.ui.chat_app import start_chat
@@ -200,7 +200,7 @@ def tui(
 Type-safe agent returning Pydantic models with tool calling.
 
 ```python
-# packages/agent-core/src/agent_core/analyst.py
+# packages/agent-core/src/analyst.py
 from pydantic import BaseModel
 from pydantic_ai import Agent, RunContext
 
@@ -251,7 +251,7 @@ async def fetch_external_data(ctx: RunContext[AnalysisDeps], endpoint: str) -> s
 ### Using the agent from CLI
 
 ```python
-# packages/client-cli/src/client_cli/commands/analyze.py
+# packages/client-cli/src/commands/analyze.py
 import asyncio
 
 import typer

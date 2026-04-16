@@ -1,0 +1,46 @@
+[project]
+name = "dex"
+version = "0.1.0"
+description = "Dex — multi-account CLI toolkit."
+requires-python = ">=3.13"
+
+[dependency-groups]
+dev = [
+	"ruff>=0.11",
+	"pyright>=1.1",
+	"pytest>=8",
+	"pytest-asyncio>=0.24",
+	"pytest-cov>=6",
+]
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+src = ["packages/*/src"]
+
+[tool.ruff.format]
+indent-style = "tab"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
+ignore = ["W191", "E101"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/commands/*.py" = ["B008"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["dex_agent", "dex_cli"]
+
+[tool.pyright]
+pythonVersion = "3.13"
+typeCheckingMode = "strict"
+venvPath = "."
+venv = ".venv"
+extraPaths = ["packages/dex-cli/src", "packages/dex-agent/src"]
+
+[tool.pytest.ini_options]
+testpaths = ["packages/*/tests"]
+asyncio_mode = "auto"

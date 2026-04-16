@@ -20,11 +20,11 @@ dependencies = [
 mycli = "my_cli.cli:app"
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/my_cli"]
+[tool.setuptools.package-dir]
+"my_cli" = "src"
 
 [tool.ruff]
 target-version = "py313"
@@ -71,11 +71,11 @@ dependencies = [
 myagent = "my_agent_cli.cli:app"
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/my_agent_cli"]
+[tool.setuptools.package-dir]
+"my_agent_cli" = "src"
 
 [tool.ruff]
 target-version = "py313"
@@ -115,11 +115,11 @@ dependencies = [
 myagent = "my_langgraph_cli.cli:app"
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/my_langgraph_cli"]
+[tool.setuptools.package-dir]
+"my_langgraph_cli" = "src"
 
 [tool.ruff]
 target-version = "py313"
@@ -167,11 +167,11 @@ dev = [
 mytui = "my_tui_cli.cli:app"
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/my_tui_cli"]
+[tool.setuptools.package-dir]
+"my_tui_cli" = "src"
 
 [tool.ruff]
 target-version = "py313"
@@ -207,11 +207,11 @@ dependencies = [
 my-mcp-server = "mcp_server.server:mcp.run"
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/mcp_server"]
+[tool.setuptools.package-dir]
+"mcp_server" = "src"
 
 [tool.ruff]
 target-version = "py313"
@@ -234,8 +234,8 @@ version = "0.0.0"
 description = "Agent system monorepo"
 requires-python = ">=3.13"
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "ruff>=0.11",
     "pyright>=1.1",
     "pytest>=8",
@@ -275,7 +275,7 @@ import sys
 from pathlib import Path
 
 NAME = "mycli"
-ENTRY = "src/my_cli/__main__.py"
+ENTRY = "src/__main__.py"
 DIST = Path("dist")
 DIST.mkdir(exist_ok=True)
 
