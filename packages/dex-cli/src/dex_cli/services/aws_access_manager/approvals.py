@@ -12,6 +12,12 @@ Order = Literal["asc", "desc"]
 Mode = Literal["owner", "approver"]
 RequestStatus = Literal["GRANTED", "PENDING", "REJECTED", "EXPIRED"]
 
+PRESELECTED_PAIRS: frozenset[tuple[str, str]] = frozenset({
+  ("D_RVT_VEHICLEAPPS", "PowerUser"),
+  ("P_RVT_SERVICES", "ConnectedServicesLead"),
+  ("S_RVT_VEHICLEAPPS", "PowerUser"),
+})
+
 
 class ApprovalsService:
   """Interact with the pre-approvals API."""
@@ -78,6 +84,8 @@ class ApprovalsService:
       - ``label``: display string with account, permission set, expiry, and ACTIVE status
       - ``item``: the original pre-approval dict
       - ``is_active``: ``True`` if a matching GRANTED request already exists
+      - ``is_preselected``: ``True`` if the (account, permission set) pair is in
+        ``PRESELECTED_PAIRS`` and the choice is not already active
     """
     preapprovals = self.list_approved_preapprovals()
     requests = self.list_requests()
@@ -96,7 +104,13 @@ class ApprovalsService:
       ps = item.get("permissionSet", {}).get("name", item.get("permissionSetId", ""))
       expires = time_left(item.get("expiresAt", ""))
       label = f"{acct} / {ps} (expires in {expires})"
-      choices.append({"label": label, "item": item, "is_active": is_active})
+      is_preselected = not is_active and (acct, ps) in PRESELECTED_PAIRS
+      choices.append({
+        "label": label,
+        "item": item,
+        "is_active": is_active,
+        "is_preselected": is_preselected,
+      })
 
     return choices
 

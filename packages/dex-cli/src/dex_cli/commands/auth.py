@@ -89,6 +89,7 @@ def _select_preapprovals(choices_data: list[dict[str, Any]]) -> list[dict[str, A
 			title=entry["label"],
 			value=entry["item"],
 			disabled="already active" if entry["is_active"] else None,
+			checked=entry.get("is_preselected", False),
 		))
 
 	selected = questionary.checkbox(
